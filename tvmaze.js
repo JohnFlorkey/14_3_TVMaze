@@ -20,6 +20,10 @@
 
 const showSearchURL = 'http://api.tvmaze.com/search/shows';
 const missingImage = 'https://tinyurl.com/tv-missing';
+const episodesSearchURL = 'http://api.tvmaze.com/shows/#showID#/episodes';
+
+
+
 async function searchShows(query) {
   // TODO: Make an ajax request to the searchShows api.  Remove
   // hard coded data.
@@ -45,6 +49,7 @@ async function searchShows(query) {
 
 function populateShows(shows) {
   const $showsList = $("#shows-list");
+  $showsList.on('click', 'button', (e) => getEpisodes(e.target.parentElement.parentElement.dataset.showId));
   $showsList.empty();
 
   for (let show of shows) {
@@ -55,6 +60,7 @@ function populateShows(shows) {
              <h5 class="card-title">${show.name}</h5>
              <img class="card-img-top" src=${show.image}>
              <p class="card-text">${show.summary}</p>
+             <button class="btn btn-primary">Episodes</button>
            </div>
          </div>
        </div>
@@ -93,5 +99,16 @@ async function getEpisodes(id) {
   //       you can get this by making GET request to
   //       http://api.tvmaze.com/shows/SHOW-ID-HERE/episodes
 
+  const url = episodesSearchURL.replace('#showID#', id)
+  const response = await axios.get(url, {'params': {'id': id}});
+
   // TODO: return array-of-episode-info, as described in docstring above
+  const result = response.data.map(show => ({
+    'id': show.id,
+    'name': show.name,
+    'season': show.season,
+    'number': show.number
+    })
+  )
+  return result;
 }
