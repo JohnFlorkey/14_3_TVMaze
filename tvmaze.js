@@ -49,8 +49,14 @@ async function searchShows(query) {
 
 function populateShows(shows) {
   const $showsList = $("#shows-list");
-  $showsList.on('click', 'button', (e) => getEpisodes(e.target.parentElement.parentElement.dataset.showId));
   $showsList.empty();
+  $showsList.on('click', async function handleEpisodes(e) {
+    e.preventDefault();
+  
+    const episodes = await getEpisodes(e.target.parentElement.parentElement.dataset.showId);
+  
+    populateEpisodes(episodes);
+  });
 
   for (let show of shows) {
     let $item = $(
@@ -111,4 +117,18 @@ async function getEpisodes(id) {
     })
   )
   return result;
+}
+
+function populateEpisodes(episodes) {
+  const $episodesArea = $('#episodes-area');
+  const $episodesList = $('#episodes-list');
+  if ($episodesArea.is(':hidden')) {
+    $episodesArea.toggle();
+  }
+  $episodesList.empty();
+  episodes.forEach(episode => {
+    $('<li>')
+      .text(`${episode.name} (season ${episode.season}, number ${episode.number})`)
+      .appendTo($episodesList)
+  })
 }
